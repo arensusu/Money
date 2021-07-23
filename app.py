@@ -42,7 +42,7 @@ def callback():
 # 處理訊息
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    num = event.message.id
+    num = event.source.userID
     message = TextSendMessage(text=num)
     line_bot_api.reply_message(event.reply_token, message)
 
