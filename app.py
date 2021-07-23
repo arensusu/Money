@@ -1,11 +1,11 @@
 
 import os
-import psycopg2
+#import psycopg2
 
-DATABASE_URL = os.popen("heroku config:get DATABASE_URL -a susumoney").read()[:-1]
+#DATABASE_URL = os.popen("heroku config:get DATABASE_URL -a susumoney").read()[:-1]
 
-conn = psycopg2.connect(DATABASE_URL, sslmode = "require")
-currsor = conn.cursor()
+#conn = psycopg2.connect(DATABASE_URL, sslmode = "require")
+#currsor = conn.cursor()
 
 from flask import Flask, request, abort
 
