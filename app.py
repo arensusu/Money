@@ -1,3 +1,12 @@
+
+import os
+import psycopg2
+
+DATABASE_URL = os.popen("heroku config:get DATABASE_URL -a susumoney").read()[:-1]
+
+conn = psycopg2.connect(DATABASE_URL, sslmode = "require")
+currsor = conn.cursor()
+
 from flask import Flask, request, abort
 
 from linebot import (
@@ -33,11 +42,10 @@ def callback():
 # 處理訊息
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    num = 10 + int(event.message.text)
+    num = event.message.id
     message = TextSendMessage(text=num)
     line_bot_api.reply_message(event.reply_token, message)
 
-import os
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
