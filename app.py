@@ -5,7 +5,10 @@ import psycopg2
 DATABASE_URL = os.environ['DATABASE_URL']
 
 conn = psycopg2.connect(DATABASE_URL, sslmode = "require")
-currsor = conn.cursor()
+cursor = conn.cursor()
+
+cursor.close()
+conn.close()
 
 from flask import Flask, request, abort
 
@@ -42,6 +45,11 @@ def callback():
 # 處理訊息
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+
+    f = open("record.txt", 'w')
+    f.readline(event.source["userId"] + "," + event.message.text)
+    f.close()
+
     num = event.source.user_id
     message = TextSendMessage(text=num)
     line_bot_api.reply_message(event.reply_token, message)
