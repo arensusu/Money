@@ -47,7 +47,7 @@ def callback():
 def handle_message(event):
 
     f = open("record.txt", 'w')
-    f.readline(event.source.user_id + "," + event.message.text)
+    f.write(event.source.user_id + "," + event.message.text)
     f.close()
 
     num = event.source.user_id
