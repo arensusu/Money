@@ -27,6 +27,12 @@ line_bot_api = LineBotApi('/wApXuOouGdvuW1iaOjQ8sSFAV+ahlMJty3AGS5ZTGfZLoPMvVYPn
 # Channel Secret
 handler = WebhookHandler('498b5c890e47bbda4135c8a35bf5bd90')
 
+#action list
+mainAction = ["新增帳戶", "新增款項", "查閱明細"]
+accountAction = ["群組帳戶", "個人帳戶"]
+paymentAction = ["收入", "支出"]
+listAction = ["本週明細", "本月明細"]
+
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -45,15 +51,14 @@ def callback():
 # 處理訊息
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-
-    f = open("record.txt", 'w')
-    f.write(event.source.user_id + "," + event.message.text)
-    f.close()
-
+    if event.message.text == mainAction[1] : 
+        line_bot_api.reply_message(event.reply_token, "給我錢錢")
+    """
     num = event.source.user_id
     message = TextSendMessage(text=num)
     line_bot_api.reply_message(event.reply_token, message)
-
+    """
+    
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
