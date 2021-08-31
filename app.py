@@ -53,6 +53,8 @@ def callback():
 def handle_message(event):
     if event.message.text == mainAction[1] : 
         line_bot_api.reply_message(event.reply_token, "給我錢錢")
+    else:
+        line_bot_api.reply_message(event.reply_token, "error")
     """
     num = event.source.user_id
     message = TextSendMessage(text=num)
