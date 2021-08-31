@@ -33,6 +33,8 @@ accountAction = ["群組帳戶", "個人帳戶"]
 paymentAction = ["收入", "支出"]
 listAction = ["本週明細", "本月明細"]
 
+mainMention = ["選擇項目(群組帳戶, 個人帳戶)", "選擇項目(收入, 支出)", "選擇項目(本週明細, 本月明細)"]
+
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -51,10 +53,15 @@ def callback():
 # 處理訊息
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    if event.message.text == mainAction[1] : 
-        message = TextSendMessage(text="給我錢錢")
+    if event.message.text == mainAction[0] :
+        message = TextSendMessage(text = mainMention[0])
+    elif event.message.text == mainAction[1] : 
+        message = TextSendMessage(text = mainMention[1])
+    elif event.message.text == mainAction[2] :
+        message = TextSendMessage(text = mainMention[2])
     else:
         message = TextSendMessage(text="error")
+        
     line_bot_api.reply_message(event.reply_token, message)
     """
     num = event.source.user_id
