@@ -128,8 +128,11 @@ def handle_message(event):
     #choose action
     if main == -1 and side == -1 :
         messageList = event.message.text.split(' ')
+        print(messageList)
+        
         if len(messageList) == 3:
             recordPayment(messageList)
+            message = TextSendMessage(text = '已存入')
 
         """for i in range(len(mainAction)):
             if event.message.text == mainAction[i]:
