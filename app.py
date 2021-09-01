@@ -87,12 +87,11 @@ def clearChat():
     cursor.close()
     conn.close()
 
-def recordPayment(messageList, timestamp):
+def recordPayment(messageList):
 
     conn, cursor = dbConnect()
 
     insertSQL = '''INSERT INTO outcome(account, month, day, amount, remark) VALUES(%s, %s, %s, %s, %s);'''
-    print(date.today())
     cursor.execute(insertSQL, (messageList[0], date.today().month, date.today().day, messageList[2], messageList[1], ))
 
     fetchSQL = '''SELECT amount FROM balance WHERE account = %s;'''
@@ -134,11 +133,9 @@ def handle_message(event):
     #choose action
     if main == -1 and side == -1 :
         messageList = event.message.text.split(' ')
-        timestamp = event.timestamp / 1000
-        print(timestamp)
 
         if len(messageList) == 3:
-            recordPayment(messageList, timestamp)
+            recordPayment(messageList)
             message = TextSendMessage(text = '已存入')
             line_bot_api.reply_message(event.reply_token, message)
 
