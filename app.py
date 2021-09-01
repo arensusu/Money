@@ -92,7 +92,7 @@ def recordPayment(messageList):
     fetchSQL = '''SELECT amount FROM balance WHERE account = %s;'''
     cursor.execute(fetchSQL, (messageList[0], ))
 
-    money, _ = cursor.fetchone()
+    money, = cursor.fetchone()
     print(money)
     money += int(messageList[2])
 
