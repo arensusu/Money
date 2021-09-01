@@ -114,6 +114,7 @@ def handle_message(event):
                 message = TextSendMessage(text = mainMention[i])
                 break
             else:
+                clearChat()
                 message = TextSendMessage(text = "error")
         
         line_bot_api.reply_message(event.reply_token, message)
