@@ -93,7 +93,8 @@ def recordPayment(messageList):
     cursor.execute(fetchSQL, (messageList[0], ))
 
     money = cursor.fetchone()
-    money += messageList[2]
+    print(money)
+    money += int(messageList[2])
 
     updateSQL = '''UPDATE balance SET amount = %s WHERE account = %s;'''
     cursor.execute(updateSQL, (money, messageList[0], ))
@@ -129,7 +130,7 @@ def handle_message(event):
     if main == -1 and side == -1 :
         messageList = event.message.text.split(' ')
         print(messageList)
-        
+
         if len(messageList) == 3:
             recordPayment(messageList)
             message = TextSendMessage(text = '已存入')
