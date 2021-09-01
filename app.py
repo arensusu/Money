@@ -14,6 +14,7 @@ def recordChat(message):
 
     sql = '''INSERT INTO chat(chat) VALUES(%s);'''
     
+    print(message)
     cursor.execute(sql, message)
     conn.commit()
 
