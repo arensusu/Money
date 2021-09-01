@@ -99,7 +99,7 @@ def recordPayment(messageList, timestamp):
     cursor.execute(fetchSQL, (messageList[0], ))
 
     money, = cursor.fetchone()
-    money += int(messageList[2])
+    money -= int(messageList[2])
 
     updateSQL = '''UPDATE balance SET amount = %s WHERE account = %s;'''
     cursor.execute(updateSQL, (money, messageList[0], ))
