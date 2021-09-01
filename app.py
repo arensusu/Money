@@ -2,38 +2,6 @@
 import os
 import psycopg2
 
-def recordChat(message):
-    database = "de2autom7hvb"
-    user = "cdwdunsupuvvkj"
-    pw = "94ff64c4bd76e17fe85202095d37123faa46ab382706801cdcac9c83938b6e4a"
-    host = "ec2-44-194-183-115.compute-1.amazonaws.com"
-    port = "5432"
-
-    conn = psycopg2.connect(database = database, user = user, password = pw, host = host, port = port)
-    cursor = conn.cursor()
-
-    sql = '''INSERT INTO chat(chat) VALUES(%s);'''
-    
-    print(sql, message)
-    cursor.execute(sql, (message, ))
-    conn.commit()
-
-    cursor.close()
-    conn.close()
-
-def clearChat():
-    DATABASE_URL = os.popen('heroku config:get DATABASE_URL -a susumoney').read()[:-1]
-    conn = psycopg2.connect(DATABASE_URL, sslmode = "require")
-    cursor = conn.cursor()
-
-    sql = '''DELETE FROM chat;'''
-    
-    cursor.execute(sql)
-    conn.commit()
-
-    cursor.close()
-    conn.close()
-
 from flask import Flask, request, abort
 
 from linebot import (
@@ -62,6 +30,60 @@ mainMention = ["選擇項目(群組帳戶, 個人帳戶)", "選擇項目(收入,
 actionMention = ["請輸入帳戶名稱"]
 paymentMention = ["請選擇帳戶", "請輸入品項及金額(ex: 早餐 50)"]
 
+#datebase
+
+def dbConnect():
+    database = "de2autom7hvb"
+    user = "cdwdunsupuvvkj"
+    pw = "94ff64c4bd76e17fe85202095d37123faa46ab382706801cdcac9c83938b6e4a"
+    host = "ec2-44-194-183-115.compute-1.amazonaws.com"
+    port = "5432"
+
+    conn = psycopg2.connect(database = database, user = user, password = pw, host = host, port = port)
+    cursor = conn.cursor()
+
+    return (conn, cursor)
+
+def checkHistory():
+
+    conn, cursor = dbConnect()
+
+    sql = '''SELECT chat FROM chat;'''
+
+    cursor.execute(sql)
+    chatList = cursor.fetchall()
+
+    if len(chatList) > 0:
+        main = chatList[0]
+
+    if len(chatList) > 1:
+        side = chatList[1]
+
+
+def recordChat(message):
+    
+    conn, cursor = dbConnect()
+
+    sql = '''INSERT INTO chat(chat) VALUES(%s);'''
+    
+    cursor.execute(sql, (message, ))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+def clearChat():
+    
+    conn, cursor = dbConnect()
+
+    sql = '''DELETE FROM chat;'''
+    
+    cursor.execute(sql)
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -88,7 +110,7 @@ def handle_message(event):
     if main == -1 and side == -1 :
         for i in range(len(mainAction)):
             if event.message.text == mainAction[i]:
-                recordChat(event.message.text)
+                recordChat(i)
                 message = TextSendMessage(text = mainMention[i])
                 break
             else:
