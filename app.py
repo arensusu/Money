@@ -38,9 +38,7 @@ mainMention = ["選擇項目(群組帳戶, 個人帳戶)", "選擇項目(收入,
 actionMention = ["請輸入帳戶名稱"]
 paymentMention = ["請選擇帳戶", "請輸入品項及金額(ex: 早餐 50)"]
 
-#chat history
-main = -1
-side = -1
+
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
@@ -60,6 +58,10 @@ def callback():
 # 處理訊息
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    #chat history
+    main = -1
+    side = -1
+    
     #choose action
     if main == -1 and side == -1 :
         for i in range(len(mainAction)):
@@ -75,11 +77,17 @@ def handle_message(event):
 
 
     elif main != -1 and side == -1 :
-        action(event, main)
+        #action(event, main)
+        message = TextSendMessage(text = "error")
+        line_bot_api.reply_message(event.reply_token, message)
     elif main != -1 and side != -1 :
-        action(event, main, side)
+        #action(event, main, side)
+        message = TextSendMessage(text = "error")
+        line_bot_api.reply_message(event.reply_token, message)
     else :
-        action()
+        #action()
+        message = TextSendMessage(text = "error")
+        line_bot_api.reply_message(event.reply_token, message)
 
     """
     if event.message.text == mainAction[0] :
