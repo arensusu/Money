@@ -3,8 +3,13 @@ import os
 import psycopg2
 
 def recordChat(message):
-    DATABASE_URL = os.popen('heroku config:get DATABASE_URL -a susumoney').read()[:-1]
-    conn = psycopg2.connect(DATABASE_URL, sslmode = "require")
+    database = "de2autom7hvb"
+    user = "cdwdunsupuvvkj"
+    pw = "94ff64c4bd76e17fe85202095d37123faa46ab382706801cdcac9c83938b6e4a"
+    host = "ec2-44-194-183-115.compute-1.amazonaws.com"
+    port = "5432"
+
+    conn = psycopg2.connect(database = database, user = user, password = pw, host = host, port = port)
     cursor = conn.cursor()
 
     sql = '''INSERT INTO chat(chat) VALUES(%s);'''
