@@ -12,10 +12,10 @@ def recordChat(message):
     conn = psycopg2.connect(database = database, user = user, password = pw, host = host, port = port)
     cursor = conn.cursor()
 
-    sql = '''INSERT INTO chat(chat) VALUES(%%s);'''
+    sql = '''INSERT INTO chat(chat) VALUES(%s);'''
     
     print(sql, message)
-    cursor.execute(sql, message)
+    cursor.execute(sql, (message, ))
     conn.commit()
 
     cursor.close()

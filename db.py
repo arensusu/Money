@@ -6,6 +6,12 @@ DATABASE_URL = os.popen('heroku config:get DATABASE_URL -a susumoney').read()[:-
 conn = psycopg2.connect(DATABASE_URL, sslmode = "require")
 cursor = conn.cursor()
 
+message = "chat"
+sql = 'INSERT INTO chat(chat) VALUES(' + message + ')'
+
+print(sql, message)
+
+"""
 create_chat_table_query = '''CREATE TABLE chat(id SERIAL PRIMARY KEY NOT NULL,
                                                 chat TEXT NOT NULL);'''
 
@@ -25,7 +31,7 @@ create_outcome_table_query = '''CREATE TABLE outcome(id SERIAL PRIMARY KEY NOT N
                                                     time TIME NOT NULL, 
                                                     usage TEXT NOT NULL, 
                                                     amount INT NOT NULL);'''
-"""
+""""""
 cursor.execute("DROP TABLE chat;")
 cursor.execute("DROP TABLE idToAccount;")
 cursor.execute("DROP TABLE balance;")
