@@ -92,8 +92,8 @@ def recordPayment(messageList, timestamp):
     conn, cursor = dbConnect()
 
     insertSQL = '''INSERT INTO outcome(account, month, day, amount, remark) VALUES(%s, %s, %s, %s, %s);'''
-    print(date.fromtimestamp(timestamp))
-    cursor.execute(insertSQL, (messageList[0], date.fromtimestamp(timestamp).month, date.fromtimestamp(timestamp).day, messageList[2], messageList[1], ))
+    print(date.today())
+    cursor.execute(insertSQL, (messageList[0], date.today().month, date.today()).day, messageList[2], messageList[1], ))
 
     fetchSQL = '''SELECT amount FROM balance WHERE account = %s;'''
     cursor.execute(fetchSQL, (messageList[0], ))
