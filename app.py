@@ -20,15 +20,17 @@ line_bot_api = LineBotApi('/wApXuOouGdvuW1iaOjQ8sSFAV+ahlMJty3AGS5ZTGfZLoPMvVYPn
 handler = WebhookHandler('498b5c890e47bbda4135c8a35bf5bd90')
 
 #action list
-mainAction = ["新增帳戶", "新增款項", "查閱明細"]
+#mainAction = ["新增帳戶", "新增款項", "查閱明細"]
+mainAction = ["新增帳戶", "查閱明細"]
 accountAction = ["群組帳戶", "個人帳戶"]
-paymentAction = ["收入", "支出"]
+#paymentAction = ["收入", "支出"]
 listAction = ["本週明細", "本月明細"]
 
 #mention list
-mainMention = ["選擇項目(群組帳戶, 個人帳戶)", "選擇項目(收入, 支出)", "選擇項目(本週明細, 本月明細)"]
+#mainMention = ["選擇項目(群組帳戶, 個人帳戶)", "選擇項目(收入, 支出)", "選擇項目(本週明細, 本月明細)"]
+mainMention = ["選擇項目(群組帳戶, 個人帳戶)", "選擇項目(本週明細, 本月明細)"]
 actionMention = ["請輸入帳戶名稱"]
-paymentMention = ["請選擇帳戶", "請輸入品項及金額(ex: 早餐 50)"]
+#paymentMention = ["請選擇帳戶", "請輸入品項及金額(ex: 早餐 50)"]
 
 #datebase
 
@@ -59,7 +61,6 @@ def checkHistory():
     if len(chatList) > 1:
         side = chatList[1]
 
-
 def recordChat(message):
     
     conn, cursor = dbConnect()
@@ -79,6 +80,24 @@ def clearChat():
     sql = '''DELETE FROM chat;'''
     
     cursor.execute(sql)
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+def recordPayment(messageList):
+
+    conn, cursor = dbConnect()
+
+    fetchSQL = '''SELECT amount FROM balance WHERE account = %s;'''
+    cursor.execute(fetchSQL, (messageList[0], ))
+
+    money = cursor.fetchone()
+    money += messageList[2]
+
+    updateSQL = '''UPDATE balance SET amount = %s WHERE account = %s;'''
+    cursor.execute(updateSQL, (money, messageList[0], ))
+
     conn.commit()
 
     cursor.close()
@@ -108,7 +127,11 @@ def handle_message(event):
     
     #choose action
     if main == -1 and side == -1 :
-        for i in range(len(mainAction)):
+        messageList = event.message.text.split(' ')
+        if len(messageList) == 3:
+            recordPayment(messageList)
+
+        """for i in range(len(mainAction)):
             if event.message.text == mainAction[i]:
                 recordChat(i)
                 message = TextSendMessage(text = mainMention[i])
@@ -118,7 +141,7 @@ def handle_message(event):
                 message = TextSendMessage(text = "error")
         
         line_bot_api.reply_message(event.reply_token, message)
-
+    """
     elif main != -1 and side == -1 :
         """check action match"""
         """record to chat history"""

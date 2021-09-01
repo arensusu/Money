@@ -17,7 +17,7 @@ create_chat_table_query = '''CREATE TABLE chat(id SERIAL PRIMARY KEY NOT NULL,
 
 create_idToAccount_table_query = '''CREATE TABLE idToAccount(userID TEXT NOT NULL,
                                                         account INT PRIMARY KEY NOT NULL);'''
-create_balance_table_query = '''CREATE TABLE balance(account SERIAL PRIMARY KEY NOT NULL,
+create_balance_table_query = '''CREATE TABLE balance(account TEXT PRIMARY KEY NOT NULL,
                                                      amount INT NOT NULL);'''
 create_income_table_query = '''CREATE TABLE income(id SERIAL PRIMARY KEY NOT NULL, 
                                                     userID TEXT NOT NULL, 
