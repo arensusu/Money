@@ -1,5 +1,5 @@
 
-from datetime import datetime
+from datetime import date
 
 import os
 import psycopg2
@@ -92,8 +92,8 @@ def recordPayment(messageList, timestamp):
     conn, cursor = dbConnect()
 
     insertSQL = '''INSERT INTO outcome(account, month, day, amount, remark) VALUES(%s, %s, %s, %s, %s);'''
-    print(datetime.fromtimestamp(timestamp))
-    cursor.execute(insertSQL, (messageList[0], datetime.fromtimestamp(timestamp).date.month, datetime.fromtimestamp(timestamp).date.day, messageList[2], messageList[1], ))
+    print(date.fromtimestamp(timestamp))
+    cursor.execute(insertSQL, (messageList[0], date.fromtimestamp(timestamp).month, date.fromtimestamp(timestamp).day, messageList[2], messageList[1], ))
 
     fetchSQL = '''SELECT amount FROM balance WHERE account = %s;'''
     cursor.execute(fetchSQL, (messageList[0], ))
@@ -134,7 +134,7 @@ def handle_message(event):
     #choose action
     if main == -1 and side == -1 :
         messageList = event.message.text.split(' ')
-        timestamp = event.timestamp
+        timestamp = event.timestamp / 1000
         print(timestamp)
 
         if len(messageList) == 3:
