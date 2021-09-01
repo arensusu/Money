@@ -1,4 +1,6 @@
 
+from datetime import datetime
+
 import os
 import psycopg2
 
@@ -85,15 +87,17 @@ def clearChat():
     cursor.close()
     conn.close()
 
-def recordPayment(messageList):
+def recordPayment(messageList, timestamp):
 
     conn, cursor = dbConnect()
+
+    insertSQL = '''INSERT INTO outcome(account, month, day, amount, remark) VALUES(%s, %s, %s, %s, %s);'''
+    cursor.execute(insertSQL, (messageList[0], datetime.fromtimestamp(timestamp).date.month, datetime.fromtimestamp(timestamp).date.day, messageList[2], messageList[1]))
 
     fetchSQL = '''SELECT amount FROM balance WHERE account = %s;'''
     cursor.execute(fetchSQL, (messageList[0], ))
 
     money, = cursor.fetchone()
-    print(money)
     money += int(messageList[2])
 
     updateSQL = '''UPDATE balance SET amount = %s WHERE account = %s;'''
@@ -129,11 +133,13 @@ def handle_message(event):
     #choose action
     if main == -1 and side == -1 :
         messageList = event.message.text.split(' ')
-        print(messageList)
+        timestamp = event.timestamp
+        print(timestamp)
 
         if len(messageList) == 3:
-            recordPayment(messageList)
+            recordPayment(messageList, timestamp)
             message = TextSendMessage(text = '已存入')
+            line_bot_api.reply_message(event.reply_token, message)
 
         """for i in range(len(mainAction)):
             if event.message.text == mainAction[i]:
