@@ -1,15 +1,33 @@
 
 import os
 import psycopg2
-"""
-DATABASE_URL = os.environ['DATABASE_URL']
 
-conn = psycopg2.connect(DATABASE_URL, sslmode = "require")
-cursor = conn.cursor()
+def recordChat(message):
+    DATABASE_URL = os.popen('heroku config:get DATABASE_URL -a susumoney').read()[:-1]
+    conn = psycopg2.connect(DATABASE_URL, sslmode = "require")
+    cursor = conn.cursor()
 
-cursor.close()
-conn.close()
-"""
+    sql = '''INSERT INTO chat(chat) VALUES(%s);'''
+    
+    cursor.execute(sql, message)
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+def clearChat():
+    DATABASE_URL = os.popen('heroku config:get DATABASE_URL -a susumoney').read()[:-1]
+    conn = psycopg2.connect(DATABASE_URL, sslmode = "require")
+    cursor = conn.cursor()
+
+    sql = '''DELETE FROM chat;'''
+    
+    cursor.execute(sql)
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
 from flask import Flask, request, abort
 
 from linebot import (
@@ -38,8 +56,6 @@ mainMention = ["選擇項目(群組帳戶, 個人帳戶)", "選擇項目(收入,
 actionMention = ["請輸入帳戶名稱"]
 paymentMention = ["請選擇帳戶", "請輸入品項及金額(ex: 早餐 50)"]
 
-
-
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -66,8 +82,7 @@ def handle_message(event):
     if main == -1 and side == -1 :
         for i in range(len(mainAction)):
             if event.message.text == mainAction[i]:
-                main = i
-                """record to chat history"""
+                recordChat(event.message.text)
                 message = TextSendMessage(text = mainMention[i])
                 break
             else:
@@ -75,18 +90,28 @@ def handle_message(event):
         
         line_bot_api.reply_message(event.reply_token, message)
 
-
     elif main != -1 and side == -1 :
-        #action(event, main)
-        message = TextSendMessage(text = "error")
+        """check action match"""
+        """record to chat history"""
+        message = TextSendMessage(text = mainMention[main])
         line_bot_api.reply_message(event.reply_token, message)
+
     elif main != -1 and side != -1 :
         #action(event, main, side)
-        message = TextSendMessage(text = "error")
+        if main == 0:
+            message = TextSendMessage(text = "account")
+        elif main == 1:
+            message = TextSendMessage(text = "payment")
+        elif main == 2:
+            message = TextSendMessage(text = "list")
+        else:
+            message = TextSendMessage(text = "detailError")
+        
         line_bot_api.reply_message(event.reply_token, message)
+
     else :
         #action()
-        message = TextSendMessage(text = "error")
+        message = TextSendMessage(text = "mainError")
         line_bot_api.reply_message(event.reply_token, message)
 
     """
