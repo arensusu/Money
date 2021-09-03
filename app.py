@@ -23,7 +23,6 @@ handler = WebhookHandler('498b5c890e47bbda4135c8a35bf5bd90')
 
 #action list
 mainAction = ["新增帳戶", "新增款項", "查閱明細"]
-mainAction = ["新增帳戶", "查閱明細"]
 accountAction = ["群組帳戶", "個人帳戶"]
 #paymentAction = ["收入", "支出"]
 listAction = ["本週明細", "本月明細"]
@@ -167,7 +166,6 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, message)
 
         if len(messageList) == 2:
-            print(messageList)
             if messageList[1] == mainAction[2]:
                 message = TextSendMessage(text = printPayment(messageList[0]))
                 line_bot_api.reply_message(event.reply_token, message)
