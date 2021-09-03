@@ -22,7 +22,7 @@ line_bot_api = LineBotApi('/wApXuOouGdvuW1iaOjQ8sSFAV+ahlMJty3AGS5ZTGfZLoPMvVYPn
 handler = WebhookHandler('498b5c890e47bbda4135c8a35bf5bd90')
 
 #action list
-#mainAction = ["新增帳戶", "新增款項", "查閱明細"]
+mainAction = ["新增帳戶", "新增款項", "查閱明細"]
 mainAction = ["新增帳戶", "查閱明細"]
 accountAction = ["群組帳戶", "個人帳戶"]
 #paymentAction = ["收入", "支出"]
@@ -108,6 +108,33 @@ def recordPayment(messageList):
     cursor.close()
     conn.close()
 
+def printPayment(account):
+
+    conn, cursor = dbConnect()
+
+    month = date.today().month
+    sql = '''SELECT day, amount FROM outcome WHERE month = %s AND account = %s;'''
+    cursor.execute(sql, (month, account, ))
+
+    payments = cursor.fetchall()
+
+    day = date.today().day
+    monthTotal = 0
+    weekTotal = 0
+    for payment in payments:
+        if (day // 7) * 7 < int(payment[0]) <= ((day // 7) + 1) * 7:
+            weekTotal += int(payment[1])
+        monthTotal += int(payment[1])
+
+    cursor.close()
+    conn.close()
+
+    message = str(weekTotal) + ", " + str(month)
+    #message = str(month) + str((day // 7) * 7 + 1) + "-" + str(month) + str(day) + "，共 " + str(day - ((day // 7) * 7 + 1)) + "天。\n"\
+    #    + account + "週預算 " + str((day - ((day // 7) * 7 + 1)) * 500) + "，實支 " + str(weekTotal)
+
+    return message
+
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -139,17 +166,11 @@ def handle_message(event):
             message = TextSendMessage(text = '已存入')
             line_bot_api.reply_message(event.reply_token, message)
 
-        """for i in range(len(mainAction)):
-            if event.message.text == mainAction[i]:
-                recordChat(i)
-                message = TextSendMessage(text = mainMention[i])
-                break
-            else:
-                clearChat()
-                message = TextSendMessage(text = "error")
+        if len(messageList) == 2:
+            if messageList[1] == mainAction[2]:
+                message = TextSendMessage(text = printPayment(messageList[0]))
+                line_bot_api.reply_message(event.reply_token, message)
         
-        line_bot_api.reply_message(event.reply_token, message)
-    """
     elif main != -1 and side == -1 :
         """check action match"""
         """record to chat history"""
