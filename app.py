@@ -138,20 +138,19 @@ def printPayment(account, pred = 0):
 
     message = ""
 
-    message += str(month).zfill(2) + str(weekStart).zfill(2) + "-" + str(month).zfill(2) + str(weekEnd).zfill(2)
+    message += str(month).zfill(2) + str(weekStart).zfill(2) + "-" + str(month).zfill(2) + str(weekEnd).zfill(2) + "週\n"
     if pred != 0:
-        message += "週預算: " + str(weekPred) + "元，"
-    message += "週支出: " + str(weekTotal) + "元"
+        message += "預算: " + str(weekPred) + "元，"
+    message += "支出: " + str(weekTotal) + "元"
     if pred != 0:
         message += "，餘額: " + str(weekPred - weekTotal) + "元"
 
-    message += "\n" + str(month).zfill(2)
+    message += "\n" + str(month).zfill(2) + "月\n"
     if pred != 0:
-        message += "月預算: " + str(monthPred) + "元，"
-    message += "月支出: " + str(monthTotal) + "元"
+        message += "預算: " + str(monthPred) + "元，"
+    message += "支出: " + str(monthTotal) + "元"
     if pred != 0:
-        message += "結餘: " + str(monthPred - monthTotal) + "元"
-    message += "\n"
+        message += "，結餘: " + str(monthPred - monthTotal) + "元"
 
     return message
 
