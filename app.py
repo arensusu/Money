@@ -106,7 +106,7 @@ def recordPayment(messageList):
     cursor.close()
     conn.close()
 
-def printPayment(account):
+def printPayment(account, pred = 0):
 
     conn, cursor = dbConnect()
 
@@ -118,13 +118,17 @@ def printPayment(account):
 
     cursor.close()
     conn.close()
-
-    weekStart = (date.today().day // 7) * 7 + 1
-    weekEnd = (date.today().day // 7 + 1) * 7
+    
     monthStart = 1
     monthEnd = (date(date.today().year, date.today().month + 1, 1) - date.resolution).day
+    weekStart = (date.today().day // 7) * 7 + 1
+    weekEnd = (date.today().day // 7 + 1) * 7
+    if weekEnd > monthEnd:
+        weekEnd = monthEnd
 
-    day = date.today().day
+    weekPred = (weekEnd - weekStart) * pred
+    monthPred = (monthEnd - monthStart) * pred
+
     monthTotal = 0
     weekTotal = 0
     for payment in payments:
@@ -132,9 +136,23 @@ def printPayment(account):
             weekTotal += int(payment[1])
         monthTotal += int(payment[1])
 
-    message = str(month) + str(weekStart) + "-" + str(month) + str(weekEnd) + "週支出: " + str(weekTotal) + "\n"\
-        + str(month) + str(monthStart) + "-" + str(month) + str(monthEnd) + "月支出: " + str(monthTotal)
-    
+    message = ""
+
+    message += str(month).zfill(2) + str(weekStart).zfill(2) + "-" + str(month).zfill(2) + str(weekEnd).zfill(2)
+    if pred != 0:
+        message += "週預算: " + str(weekPred) + "元，"
+    message += "週支出: " + str(weekTotal) + "元"
+    if pred != 0:
+        message += "，餘額: " + str(weekPred - weekTotal) + "元"
+
+    message += "\n" + str(month).zfill(2)
+    if pred != 0:
+        message += "月預算: " + str(monthPred) + "元，"
+    message += "月支出: " + str(monthTotal)
+    if pred != 0:
+        message += "月總結: " + str(monthPred - monthTotal) + "元"
+    message += "\n"
+
     return message
 
 # 監聽所有來自 /callback 的 Post Request
@@ -170,7 +188,7 @@ def handle_message(event):
 
         if len(messageList) == 2:
             if messageList[1] == mainAction[2]:
-                message = TextSendMessage(text = printPayment(messageList[0]))
+                message = TextSendMessage(text = printPayment(messageList[0], 500))
                 line_bot_api.reply_message(event.reply_token, message)
         
     elif main != -1 and side == -1 :
