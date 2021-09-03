@@ -22,14 +22,13 @@ line_bot_api = LineBotApi('/wApXuOouGdvuW1iaOjQ8sSFAV+ahlMJty3AGS5ZTGfZLoPMvVYPn
 handler = WebhookHandler('498b5c890e47bbda4135c8a35bf5bd90')
 
 #action list
-mainAction = ["新增帳戶", "新增款項", "查閱明細"]
+mainAction = ["新增帳戶", "查閱明細", "總覽"]
 accountAction = ["群組帳戶", "個人帳戶"]
 #paymentAction = ["收入", "支出"]
 listAction = ["本週明細", "本月明細"]
 
 #mention list
-#mainMention = ["選擇項目(群組帳戶, 個人帳戶)", "選擇項目(收入, 支出)", "選擇項目(本週明細, 本月明細)"]
-mainMention = ["選擇項目(群組帳戶, 個人帳戶)", "選擇項目(本週明細, 本月明細)"]
+mainMention = ["選擇項目(群組帳戶, 個人帳戶)", "選擇項目(收入, 支出)", "選擇項目(本週明細, 本月明細)"]
 actionMention = ["請輸入帳戶名稱"]
 #paymentMention = ["請選擇帳戶", "請輸入品項及金額(ex: 早餐 50)"]
 
@@ -117,21 +116,25 @@ def printPayment(account):
 
     payments = cursor.fetchall()
 
+    cursor.close()
+    conn.close()
+
+    weekStart = (date.today().day // 7) * 7 + 1
+    weekEnd = (date.today().day // 7 + 1) * 7
+    monthStart = 1
+    monthEnd = (date(date.today().year, date.today().month + 1, 1) - date.resolution).day
+
     day = date.today().day
     monthTotal = 0
     weekTotal = 0
     for payment in payments:
-        if (day // 7) * 7 < int(payment[0]) <= ((day // 7) + 1) * 7:
+        if weekStart <= int(payment[0]) <= weekEnd:
             weekTotal += int(payment[1])
         monthTotal += int(payment[1])
 
-    cursor.close()
-    conn.close()
-
-    message = "週支出: " + str(weekTotal) + "\n月支出: " + str(monthTotal)
-    #message = str(month) + str((day // 7) * 7 + 1) + "-" + str(month) + str(day) + "，共 " + str(day - ((day // 7) * 7 + 1)) + "天。\n"\
-    #    + account + "週預算 " + str((day - ((day // 7) * 7 + 1)) * 500) + "，實支 " + str(weekTotal)
-
+    message = str(month) + str(weekStart) + "-" + str(month) + str(weekEnd) + "週支出: " + str(weekTotal) + "\n"\
+        + str(month) + str(monthStart) + "-" + str(month) + str(monthEnd) + "月支出: " + str(monthTotal)
+    
     return message
 
 # 監聽所有來自 /callback 的 Post Request
