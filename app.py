@@ -148,9 +148,9 @@ def printPayment(account, pred = 0):
     message += "\n" + str(month).zfill(2)
     if pred != 0:
         message += "月預算: " + str(monthPred) + "元，"
-    message += "月支出: " + str(monthTotal)
+    message += "月支出: " + str(monthTotal) + "元"
     if pred != 0:
-        message += "月總結: " + str(monthPred - monthTotal) + "元"
+        message += "結餘: " + str(monthPred - monthTotal) + "元"
     message += "\n"
 
     return message
