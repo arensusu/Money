@@ -167,6 +167,7 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, message)
 
         if len(messageList) == 2:
+            print(messageList)
             if messageList[1] == mainAction[2]:
                 message = TextSendMessage(text = printPayment(messageList[0]))
                 line_bot_api.reply_message(event.reply_token, message)
