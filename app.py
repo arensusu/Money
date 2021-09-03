@@ -128,7 +128,7 @@ def printPayment(account):
     cursor.close()
     conn.close()
 
-    message = str(weekTotal) + ", " + str(monthTotal)
+    message = "週支出: " + str(weekTotal) + "\n月支出: " + str(monthTotal)
     #message = str(month) + str((day // 7) * 7 + 1) + "-" + str(month) + str(day) + "，共 " + str(day - ((day // 7) * 7 + 1)) + "天。\n"\
     #    + account + "週預算 " + str((day - ((day // 7) * 7 + 1)) * 500) + "，實支 " + str(weekTotal)
 
