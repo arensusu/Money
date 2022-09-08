@@ -3,6 +3,7 @@ from datetime import date
 
 import os
 import psycopg2
+import requests
 
 from flask import Flask, request, abort
 
@@ -20,6 +21,11 @@ app = Flask(__name__)
 line_bot_api = LineBotApi('/wApXuOouGdvuW1iaOjQ8sSFAV+ahlMJty3AGS5ZTGfZLoPMvVYPn8K2Rx9MaOtEaJ0UnBBKWlZ5UBhXkcgC+q6jRrUb9dfrJvMBlgYkEgYn4XlScGvpH9bTta4xVravDRtOOmui0uB9sYq1EDx02gdB04t89/1O/w1cDnyilFU=')
 # Channel Secret
 handler = WebhookHandler('498b5c890e47bbda4135c8a35bf5bd90')
+
+# Rich menu
+richID = "richmenu-4ccab11c32e10ca40b6716945b5096aa"
+headers = {"Authorization":"Bearer /wApXuOouGdvuW1iaOjQ8sSFAV+ahlMJty3AGS5ZTGfZLoPMvVYPn8K2Rx9MaOtEaJ0UnBBKWlZ5UBhXkcgC+q6jRrUb9dfrJvMBlgYkEgYn4XlScGvpH9bTta4xVravDRtOOmui0uB9sYq1EDx02gdB04t89/1O/w1cDnyilFU=","Content-Type":"application/json"}
+req = requests.request('POST', 'https://api.line.me/v2/bot/user/all/richmenu/'+richID, headers=headers)
 
 #action list
 mainAction = ["新增帳戶", "查閱明細", "總覽"]
