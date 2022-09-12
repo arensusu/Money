@@ -19,10 +19,6 @@ from database import *
 line_bot_api = LineBotApi(os.environ['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(os.environ['CHANNEL_SECRET'])
 
-richID = "richmenu-4ccab11c32e10ca40b6716945b5096aa"
-headers = {"Authorization":"Bearer /wApXuOouGdvuW1iaOjQ8sSFAV+ahlMJty3AGS5ZTGfZLoPMvVYPn8K2Rx9MaOtEaJ0UnBBKWlZ5UBhXkcgC+q6jRrUb9dfrJvMBlgYkEgYn4XlScGvpH9bTta4xVravDRtOOmui0uB9sYq1EDx02gdB04t89/1O/w1cDnyilFU=","Content-Type":"application/json"}
-req = requests.request('POST', 'https://api.line.me/v2/bot/user/all/richmenu/'+richID, headers=headers)
-
 money = Accounting()
 
 #action list
