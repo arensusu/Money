@@ -31,7 +31,7 @@ def RecordPayment(messageList):
 def PrintPayment(messageList):
     user = messageList[0]
     type = messageList[1]
-    period = messageList[2].zfill(2)
+    period = messageList[2]
 
     return money.PrintSummary(user, type, period)
 
@@ -41,8 +41,8 @@ def lambda_handler(event, context):
         #choose action
         messageList = event.message.text.split(' ')
 
-        for action in summaryAction:
-            money.Summary(messageList[0], action)
+        #money.Summary(messageList[0], "月結算")
+        #money.Summary(messageList[0], "年結算")
 
         if messageList[1] in summaryAction:
             message = TextSendMessage(text = PrintPayment(messageList))

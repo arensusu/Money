@@ -1,5 +1,3 @@
-from unicodedata import category
-from urllib import response
 import boto3
 import datetime
 
@@ -32,51 +30,31 @@ class Accounting:
 
     def PrintSummary(self, user, type, value):
 
-        attribute = ""
+        table = self.db.Table("money_outcome")
         if type == "週結算":
-            table = self.db.Table("money_week")
-            attribute = "week"
+
+            upper = int(value) * 7
+            lower = upper - 6
+            if int(value) == 4:
+                upper = 31
+
+            response = table.scan(
+                FilterExpression = Attr("user").eq(user) & Attr("day").gte(str(lower).zfill(2)) & Attr("day").lte(str(upper).zfill(2))
+            )
 
         elif type == "月結算":
-            table = self.db.Table("money_month")
-            attribute = "month"
+            response = table.scan(
+                FilterExpression = Attr("user").eq(user) & Attr("month").eq(value.zfill(2))
+            )
 
         elif type == "年結算":
-            table = self.db.Table("money_year")
-            attribute = "year"
-
-        response = table.scan(
-            FilterExpression = Attr("user").eq(user) & Attr("period").eq(value)
-        )
+            response = table.scan(
+                FilterExpression = Attr("user").eq(user) & Attr("year").eq(value.zfill(2))
+            )
         query = response["Items"]
 
         if query:
-            outcome = 0
-            for payment in query:
-                outcome += payment["price"]
-        
-        else:
-
-            table = self.db.Table("money_outcome")
-
-            if attribute != "week":
-                response = table.scan(
-                    FilterExpression = Attr("user").eq(user) & Attr(attribute).eq(value)
-                )
-
-            else:
-                upper = int(value) * 7
-                lower = upper - 6
-                if int(value) == 4:
-                    upper = 31
-
-                response = table.scan(
-                    FilterExpression = Attr("user").eq(user) & Attr("day").gte(str(lower).zfill(2)) & Attr("day").lte(str(upper).zfill(2))
-                )
-            
-            query = response["Items"]
             category = {}
-            outcome = 0
             for payment in query:
                 price = payment["price"]
 
@@ -89,14 +67,17 @@ class Accounting:
                     category[term] = 0
                 category[term] += price
 
-        info = ""
-        for k, v in category.items():
-            if k == "total":
-                info += value + ' ' + type + "，總支出為 " + str(v) + " 元"
-            else:
-                info += "\n" + k + "支出為 " + str(v) + " 元"
+            info = user + " "
+            for k, v in category.items():
+                if k == "total":
+                    info += value + ' ' + type + "，總支出為 " + str(v) + " 元"
+                else:
+                    info += "\n" + k + " " + str(v) + " 元"
 
-        return info
+            return info
+
+        else:
+            return "沒有紀錄"
 
     def DeletePayment(self, tableName, partition, sort):
         table = self.db.Table(tableName)
@@ -107,16 +88,12 @@ class Accounting:
 
     def Summary(self, user, type):
 
-        if type == "週結算":
+        if type == "月結算":
             table = self.db.Table("money_outcome")
-            period = datetime.date.today().day // 7
-            upper =  period * 7
-            lower = upper - 6
-            if period == 4:
-                upper = 31
 
+            thisMonth = datetime.date.today().strftime("%m")
             response = table.scan(
-                FilterExpression = Attr("user").eq(user) & Attr("day").gte(str(lower).zfill(2)) & Attr("day").lte(str(upper).zfill(2))
+                FilterExpression = Attr("user").eq(user) & Attr("month").ne(thisMonth)
             )
             query = response["Items"]
 
@@ -130,30 +107,29 @@ class Accounting:
                     category[term] += payment["price"]
                     self.DeletePayment(table.table_name, user, payment["date"])
 
-                table = self.db.Table("money_week")
+                table = self.db.Table("money_month")
+                prevMonth = str(int(thisMonth) - 1).zfill(2)
+
+                id = 0
                 for k, v in category.items():
                     table.put_item(
                         Item = {
-                            "user" : user,
-                            "period" : str(period),
+                            "period" : prevMonth,
+                            "id" : id,
                             "term" : k,
+                            "user" : user,
                             "price" : v
                         }
                     )
+                    id += 1
 
-        else:
-            if type == "月結算":
-                tableName = "money_week"
-                period = 4
-                
-            elif type == "年結算":
-                tableName = "money_month"
-                period = 12
+            
+        elif type == "年結算":
+            table = self.db.Table("money_month")
 
-            table = self.db.Table(tableName)
-
+            thisYear = datetime.date.today().strftime("%Y")
             response = table.scan(
-                FilterExpression = Attr("user").eq(user) & Attr("period").eq(str(period))
+                FilterExpression = Attr("user").eq(user)
             )
             query = response["Items"]
 
@@ -165,25 +141,25 @@ class Accounting:
                         category[term] = 0
 
                     category[term] += payment["price"]
-                    self.DeletePayment(table.table_name, user, payment["period"])
+                    self.DeletePayment(table.table_name, payment["period"], term)
 
-                table = None
-                if type == "月結算":
-                    table = self.db.Table("money_month")
-                    value = str(datetime.date.today().month - 1)
+                table = self.db.Table("money_year")
+                prevYear = str(int(thisYear) - 1).zfill(2)
 
-                elif type == "年結算":
-                    table = self.db.Table("money_year")
-                    value = str(datetime.date.today().year - 1)
-
+                id = 0
                 for k, v in category.items():
                     table.put_item(
                         Item = {
-                            "user" : user,
-                            "period" : value,
+                            "period" : prevYear,
+                            "id" : id,
                             "term" : k,
+                            "user" : user,
                             "price" : v
                         }
                     )
+
+                    id += 1
+
+        
         
 
