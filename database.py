@@ -1,22 +1,30 @@
+
 import boto3
 import datetime
 
 from boto3.dynamodb.conditions import Key, Attr
 
+from table_method import *
+
 class Accounting:
+    """Interactives with AWS DynamoDB.
+
+    Attributes:
+        __db: A resouce service of DynamoDB.
+    
+    """
 
     def __init__(self):
-        self.db = boto3.resource("dynamodb")
+        """Connects to AWS DynamoDB."""
+        self.__table = Table()
 
-    def AddOutcome(self, user, date, term, price):
+    def AddOutcome(self, user: str, date: str, term: str, price: int) -> str:
         dateStr = date.strftime("%Y/%m/%d %X")
         year = date.strftime("%Y")
         month = date.strftime("%m")
         day = date.strftime("%d")
 
-        table = self.db.Table("money_outcome")
-        table.put_item(
-            Item = {
+        attr = {
                 "user" : user,
                 "date" : dateStr,
                 "year" : year,
@@ -24,13 +32,12 @@ class Accounting:
                 "day" : day,
                 "term" : term,
                 "price" : price
-            }
-        )
-        return "已存入"
+        }
+        return self.__table.insert("money_outcome", attr)
 
     def PrintSummary(self, user, type, value):
 
-        table = self.db.Table("money_outcome")
+        table = self.__db.Table("money_outcome")
         if type == "週結算":
 
             upper = int(value) * 7
@@ -49,7 +56,7 @@ class Accounting:
 
         elif type == "年結算":
             response = table.scan(
-                FilterExpression = Attr("user").eq(user) & Attr("year").eq(value.zfill(2))
+                FilterExpression = Attr("user").eq(user) & Attr("year").eq(value.zfill(4))
             )
         query = response["Items"]
 
@@ -80,7 +87,7 @@ class Accounting:
             return "沒有紀錄"
 
     def DeletePayment(self, tableName, partition, sort):
-        table = self.db.Table(tableName)
+        table = self.__db.Table(tableName)
         keyList = table.key_schema
         table.delete_item(
             Key = { keyList[0]["AttributeName"] : partition, keyList[1]["AttributeName"] : sort}
@@ -89,7 +96,7 @@ class Accounting:
     def Summary(self, user, type):
 
         if type == "月結算":
-            table = self.db.Table("money_outcome")
+            table = self.__db.Table("money_outcome")
 
             thisMonth = datetime.date.today().strftime("%m")
             response = table.scan(
@@ -107,7 +114,7 @@ class Accounting:
                     category[term] += payment["price"]
                     self.DeletePayment(table.table_name, user, payment["date"])
 
-                table = self.db.Table("money_month")
+                table = self.__db.Table("money_month")
                 prevMonth = str(int(thisMonth) - 1).zfill(2)
 
                 id = 0
@@ -125,7 +132,7 @@ class Accounting:
 
             
         elif type == "年結算":
-            table = self.db.Table("money_month")
+            table = self.__db.Table("money_month")
 
             thisYear = datetime.date.today().strftime("%Y")
             response = table.scan(
@@ -143,7 +150,7 @@ class Accounting:
                     category[term] += payment["price"]
                     self.DeletePayment(table.table_name, payment["period"], term)
 
-                table = self.db.Table("money_year")
+                table = self.__db.Table("money_year")
                 prevYear = str(int(thisYear) - 1).zfill(2)
 
                 id = 0
